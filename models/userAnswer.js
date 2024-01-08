@@ -32,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
 	UserAnswer.associate = (models) => {
 		UserAnswer.belongsTo(models.User, { foreignKey: "userId" });
 		UserAnswer.belongsTo(models.Question, { foreignKey: "questionId" });
+		UserAnswer.belongsTo(models.Quiz, { foreignKey: "quizId" });
 		UserAnswer.belongsTo(models.Option, {
 			as: "selectedOption",
 			foreignKey: "selectedOptionId",

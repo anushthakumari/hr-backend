@@ -1,9 +1,10 @@
 const models = require("../models");
-const jsonData = require("../quiz.json");
 
 const saveQuizResponse = async (req, res) => {
 	try {
-		const { userId, questionId, selectedOptionId } = req.body;
+		const { questionId, selectedOptionId, quizId } = req.body;
+
+		const userId = req.user.id;
 
 		const user = await models.User.findByPk(userId);
 		const question = await models.Question.findByPk(questionId);
@@ -18,6 +19,16 @@ const saveQuizResponse = async (req, res) => {
 				userId,
 			},
 		});
+
+		await models.UserQuizStatus.update(
+			{ lastAttemptedQuestionId: questionId },
+			{
+				where: {
+					userId,
+					quizId,
+				},
+			}
+		);
 
 		if (response_id) {
 			const d = await models.UserAnswer.update(
@@ -49,40 +60,39 @@ const saveQuizResponse = async (req, res) => {
 };
 
 const insertQuizData = async () => {
-	return;
 	try {
 		// Create a quiz
-		const createdQuiz = await models.Quiz.create({ title: "Your Quiz Title" }); // Set a title for your quiz
+		// const createdQuiz = await models.Quiz.create({ title: "Your Quiz Title" }); // Set a title for your quiz
 
-		for (const { id, question, options, answer } of jsonData) {
-			console.log(createdQuiz.dataValues);
+		// for (const { id, question, options, answer } of jsonData) {
+		// 	console.log(createdQuiz.dataValues);
 
-			// Insert question
-			const createdQuestion = await models.Question.create({
-				text: question,
-				quizId: createdQuiz.dataValues.id,
-			});
+		// 	// Insert question
+		// 	const createdQuestion = await models.Question.create({
+		// 		text: question,
+		// 		quizId: createdQuiz.dataValues.id,
+		// 	});
 
-			// Insert options with isCorrect
-			const createdOptions = await Promise.all(
-				options.map((text, index) => {
-					return models.Option.create({
-						text,
-						isCorrect: index === options.indexOf(answer), // Set isCorrect based on the answer index
-						questionId: createdQuestion.id,
-					});
-				})
-			);
+		// 	// Insert options with isCorrect
+		// 	const createdOptions = await Promise.all(
+		// 		options.map((text, index) => {
+		// 			return models.Option.create({
+		// 				text,
+		// 				isCorrect: index === options.indexOf(answer), // Set isCorrect based on the answer index
+		// 				questionId: createdQuestion.id,
+		// 			});
+		// 		})
+		// 	);
 
-			// // Find the correct option based on isCorrect
-			// const correctOption = createdOptions.find((option) => option.isCorrect);
+		// 	// // Find the correct option based on isCorrect
+		// 	// const correctOption = createdOptions.find((option) => option.isCorrect);
 
-			// // Insert answer
-			// await models.Answer.create({
-			// 	questionId: createdQuestion.id,
-			// 	correctOptionId: correctOption ? correctOption.id : null,
-			// });
-		}
+		// 	// // Insert answer
+		// 	// await models.Answer.create({
+		// 	// 	questionId: createdQuestion.id,
+		// 	// 	correctOptionId: correctOption ? correctOption.id : null,
+		// 	// });
+		// }
 
 		console.log("Quiz data inserted successfully");
 	} catch (error) {

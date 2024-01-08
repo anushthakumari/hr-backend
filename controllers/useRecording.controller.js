@@ -4,7 +4,9 @@ const models = require("../models");
 
 async function saveRecording(req, res) {
 	try {
-		const { userId, quizId } = req.body; // Extract user ID and quiz ID from request body
+		const { quizId } = req.body; // Extract user ID and quiz ID from request body
+
+		const userId = req.user.id;
 
 		console.log(req.body);
 
